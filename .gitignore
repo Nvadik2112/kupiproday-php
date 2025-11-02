@@ -1,0 +1,84 @@
+###> symfony/framework-bundle ###
+/.env.local
+/.env.local.php
+/.env.*.local
+/config/secrets/prod/prod.decrypt.private.php
+!/config/secrets/prod/prod.decrypt.private.php.dist
+/public/bundles/
+/var/
+/vendor/
+###< symfony/framework-bundle ###
+
+###> symfony/phpunit ###
+.phpunit
+.phpunit.result.cache
+/phpunit.xml
+###< symfony/phpunit ###
+
+###> symfony/console ###
+/.phpunit.result.cache
+/.php-cs-fixer.cache
+###< symfony/console ###
+
+###> composer ###
+/composer.phar
+/composer.lock
+###< composer ###
+
+## PHP ##
+# Логи
+*.log
+
+# Временные файлы
+*.tmp
+*.temp
+
+# Исключения кэша Opcache
+!/.phpunit/phpunit-*/
+
+## IDE ##
+# PHPStorm
+.idea/
+*.iws
+
+# VS Code
+.vscode/
+*.swp
+*.swo
+
+# NetBeans
+nbproject/
+
+## ОС ##
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Linux
+*~
+
+## Symfony специфичное ##
+# Файлы окружения (кроме примеров)
+!.env.dist
+!.env.test
+!.env.dev
+!.env.prod
+
+# Миграции базы данных (можно раскомментировать если нужно)
+# /migrations/*.php
+# !/migrations/.gitignore
+
+## Деплой ##
+# Файлы сборки
+/build/
+/phar/
+
+## Docker ##
+# Раскомментировать если используете Docker
+# !/docker-compose.override.yml

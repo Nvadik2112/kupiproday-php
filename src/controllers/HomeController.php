@@ -1,0 +1,8 @@
+<?php
+
+class HomeController {
+    public function index() {
+        header('Content-Type: application/json');
+        echo json_encode(['message' => 'Hello from PHP API!']);
+    }
+}
