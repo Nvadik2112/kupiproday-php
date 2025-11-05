@@ -5,11 +5,11 @@ namespace App\Auth;
 require_once __DIR__ . '/../../vendor/autoload.php';
 
 use App\Users\UsersModule;
-use App\Hash\HashModule;
+use App\Hash\HashService;
 use App\Config\ConfigService;
 
 class AuthModule {
-    private static AuthModule $instance;
+    private static ?AuthModule $instance = null;
     private array $services = [];
 
     private function __construct() {
@@ -23,29 +23,29 @@ class AuthModule {
         return self::$instance;
     }
 
-    private function initialize(): void  {
+    private function initialize(): void {
         $configService = new ConfigService();
         $usersModule = UsersModule::getInstance();
-        $hashModule = HashModule::getInstance();
+
+        $hashService = new HashService();
 
         $jwtConfig = [
             'secret' => $configService->get('JWT_KEY', 'fallback-secret-key'),
             'signOptions' => ['expiresIn' => '7d']
         ];
 
-        // Создаем сервисы (аналог providers)
-        $this->services['authService'] = new AuthService();
+        $this->services['authService'] = new AuthService($hashService, $usersModule->getUserService());
         $this->services['jwtStrategy'] = new JwtStrategy($configService, $usersModule->getUserService());
         $this->services['localStrategy'] = new LocalStrategy($this->services['authService']);
 
-        // Контроллер (аналог controllers)
         $this->services['authController'] = new AuthController(
             $usersModule->getUserService(),
-            $this->services['authService']
+            $this->services['authService'],
+            $this->services['localGuard']
         );
 
-        // Сохраняем конфиг
         $this->services['jwtConfig'] = $jwtConfig;
+        $this->services['hashService'] = $hashService;
     }
 
     public function get(string $serviceName) {
@@ -70,5 +70,9 @@ class AuthModule {
 
     public function getJwtConfig(): array {
         return $this->services['jwtConfig'];
+    }
+
+    public function getHashService(): HashService {
+        return $this->services['hashService'];
     }
 }

@@ -3,25 +3,25 @@
 namespace App\Auth;
 
 require_once __DIR__ . '/../../vendor/autoload.php';
-require_once __DIR__ . '/HashService.php';
-require_once __DIR__ . '/../users/UserService.php';
 
 use App\Exceptions\UnauthorizedException;
+use App\Hash\HashService;
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 
 class AuthService {
-    private $hashService;
+    private HashService $hashService;
     private $userService;
-    private $secretKey;
-    private $algorithm = 'HS256';
+    private string|array|false $secretKey;
+    private string $algorithm = 'HS256';
 
-    public function __construct() {
-        $this->hashService = new HashService();
+    public function __construct(HashService $hashService) {
+        $this->hashService = $hashService;
         $this->secretKey = getenv('JWT_SECRET') ?: 'your-fallback-secret-key';
     }
 
-    public function auth($user) {
+    public function auth($user): array
+    {
         $payload = [
             'sub' => $user['id'],
             'username' => $user['username'],

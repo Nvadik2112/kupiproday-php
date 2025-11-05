@@ -1,19 +1,19 @@
 <?php
 
-namespace App\Auth\Guards;
+namespace Auth\Guards;
 
 require_once __DIR__ . '/../../../vendor/autoload.php';
 
-use App\Auth\AuthService;
-use App\Auth\Dto\SigninDto;
-use App\Auth\Exceptions\ValidationException;
-use App\Auth\LocalStrategy;
+use Auth\AuthService;
+use Auth\Dto\SigninDto;
+use Auth\Exceptions\ValidationException;
+use Auth\LocalStrategy;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Validator\Validation;
 
 class LocalGuard {
-    private $authService;
-    private $localStrategy;
+    private AuthService $authService;
+    private LocalStrategy $localStrategy;
 
     public function __construct() {
         $this->authService = new AuthService();

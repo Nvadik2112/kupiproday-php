@@ -4,7 +4,7 @@ namespace App;
 
 use App\Auth\AuthModule;
 use App\Users\UsersModule;
-use App\Database\DatabaseModule;
+use App\Database\DataBaseModule;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
@@ -13,10 +13,8 @@ class AppModule {
     private $usersModule;
 
     public function __construct() {
-        // Инициализация базы данных
-        DatabaseModule::getInstance();
+        DataBaseModule::getInstance();
 
-        // Инициализация модулей
         $this->authModule = AuthModule::getInstance();
         $this->usersModule = UsersModule::getInstance();
     }

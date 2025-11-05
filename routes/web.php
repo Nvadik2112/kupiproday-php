@@ -18,7 +18,7 @@ function route($method, $path) {
         $handler = $routes[$method][$path];
         list($controller, $action) = explode('@', $handler);
 
-        require_once __DIR__ . "/../src/controllers/{$controller}.php";
+        require_once __DIR__ . "/../src/Controllers/{$controller}.php";
         $controllerInstance = new $controller();
         $controllerInstance->$action();
     } else {

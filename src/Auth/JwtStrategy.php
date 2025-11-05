@@ -3,8 +3,8 @@
 namespace App\Auth;
 
 require_once __DIR__ . '/../../vendor/autoload.php';
-require_once __DIR__ . '/../users/UserService.php';
-require_once __DIR__ . '/../config/ConfigService.php';
+require_once __DIR__ . '/../users/UsersService.php';
+require_once __DIR__ . '/../Config/ConfigService.php';
 
 use App\Exceptions\UnauthorizedException;
 use Exception;

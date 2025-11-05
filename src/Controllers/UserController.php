@@ -20,7 +20,7 @@ class UserController {
         $id = end($parts);
 
         header('Content-Type: application/json');
-        echo json_encode(['id' => $id, 'name' => 'User ' . $id]);
+        echo json_encode(['id' => $id, 'name' => 'Users ' . $id]);
     }
 
     public function store() {
@@ -28,7 +28,7 @@ class UserController {
 
         header('Content-Type: application/json');
         echo json_encode([
-            'message' => 'User created',
+            'message' => 'Users created',
             'data' => $input
         ]);
     }

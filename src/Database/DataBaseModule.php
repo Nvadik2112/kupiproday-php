@@ -4,7 +4,7 @@ namespace App\Database;
 
 use PDO;
 
-class DatabaseModule {
+class DataBaseModule {
     private static ?PDO $connection = null;
 
     public static function getInstance(): PDO {
@@ -25,7 +25,7 @@ class DatabaseModule {
         ];
 
         try {
-            $dsn = "pgsql:host={$config['host']};port={$config['port']};dbname={$config['database']}";
+            $dsn = "pgsql:host={$config['host']};port={$config['port']};dbname={$config['Database']}";
 
             self::$connection = new PDO($dsn, $config['username'], $config['password'], [
                 PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,

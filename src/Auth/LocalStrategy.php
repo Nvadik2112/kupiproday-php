@@ -4,20 +4,26 @@ namespace App\Auth;
 
 require_once __DIR__ . '/../../vendor/autoload.php';
 
-use App\Auth\Dto\SigninDto;
-use App\Auth\Exceptions\ValidationException;
+use App\Exceptions\UnauthorizedException;
+use Auth\Dto\SigninDto;
+use Auth\Exceptions\ValidationException;
 use App\Constants\Status;
 use Symfony\Component\Validator\Validation;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class LocalStrategy {
-    private $authService;
-    private $validator;
+    private AuthService $authService;
+    private ValidatorInterface $validator;
 
     public function __construct($authService) {
         $this->authService = $authService;
         $this->validator = Validation::createValidator();
     }
 
+    /**
+     * @throws UnauthorizedException
+     * @throws ValidationException
+     */
     public function validate($username, $password) {
         // Создаем DTO
         $signinDto = new SigninDto();
@@ -36,7 +42,6 @@ class LocalStrategy {
             throw new ValidationException($errors, Status::BAD_REQUEST);
         }
 
-        // Проверяем пользователя
         $user = $this->authService->validatePassword($username, $password);
 
         if (!$user) {

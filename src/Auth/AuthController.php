@@ -2,34 +2,34 @@
 
 namespace App\Auth;
 
-require_once __DIR__ . '/../../vendor/autoload.php';
-
 use App\Users\UserService;
 use App\Auth\Guards\LocalGuard;
 use App\Users\Dto\CreateUserDto;
-use App\Types\RequestUser;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 
 class AuthController {
     private UserService $usersService;
     private AuthService $authService;
+    private LocalGuard $localGuard;
 
-    public function __construct() {
-        $this->usersService = new UserService();
-        $this->authService = new AuthService();
+    public function __construct(
+        UserService $usersService,
+        AuthService $authService,
+        LocalGuard $localGuard
+    ) {
+        $this->usersService = $usersService;
+        $this->authService = $authService;
+        $this->localGuard = $localGuard;
     }
 
     /**
      * @Post('/signin')
-     * @UseGuards(LocalGuard)
      */
     public function signin(Request $request): JsonResponse
     {
         try {
-            $localGuard = new LocalGuard();
-            $user = $localGuard->validate($request);
-
+            $user = $this->localGuard->validate($request);
             $tokens = $this->authService->auth($user);
 
             return new JsonResponse($tokens);
