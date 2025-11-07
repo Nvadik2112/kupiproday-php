@@ -1,26 +1,31 @@
 <?php
 
-namespace App\Auth\Guards;
 
-require_once __DIR__ . '/../../../vendor/autoload.php';
+namespace App\Auth\Guards;
 
 use App\Auth\JwtStrategy;
 use App\Exceptions\UnauthorizedException;
+use App\Users\Entities\User;
 use Exception;
 use Firebase\JWT\JWT;
+use Firebase\JWT\Key;
+use Symfony\Component\HttpFoundation\Request;
+
 
 class JwtGuard
 {
-    private JwtStrategy $JwtStrategy;
+    private string $secretKey;
+    private JwtStrategy $jwtStrategy;
 
     public function __construct()
     {
-        $this->JwtStrategy = new JwtStrategy();
+        $this->secretKey = $_ENV['JWT_SECRET'] ?? 'fallback-secret-key';
+        $this->jwtStrategy = new JwtStrategy();
     }
 
     public function canActivate(array $request): bool {
         try {
-            $authenticatedRequest = $this->JwtStrategy->handle($request);
+            $authenticatedRequest = $this->jwtStrategy->handle($request);
 
             $GLOBALS['user'] = $authenticatedRequest['user'] ?? null;
 
@@ -34,7 +39,8 @@ class JwtGuard
     /**
      * @throws UnauthorizedException
      */
-    public function validate(Request $request): User {
+    public function validate(Request $request): User
+    {
         $token = $this->extractToken($request);
 
         if (!$token) {
@@ -47,11 +53,12 @@ class JwtGuard
             $payloadArray = (array)$payload;
 
             // Создаем пользователя из payload
-            return new User([
-                'id' => $payloadArray['userId'] ?? $payloadArray['sub'] ?? null,
-                'username' => $payloadArray['username'] ?? '',
-                'email' => $payloadArray['email'] ?? ''
-            ]);
+            return new User(
+                $payloadArray['username'] ?? '',
+                $payloadArray['email'] ?? '',
+                $payloadArray['about'] ?? 'Пока ничего не рассказал о себе',
+                $payloadArray['avatar'] ?? 'https://i.pravatar.cc/300'
+            );
 
         } catch (\Exception $e) {
             throw new UnauthorizedException('Invalid token: ' . $e->getMessage());
@@ -62,7 +69,6 @@ class JwtGuard
         $authHeader = $request->headers->get('Authorization');
 
         if (!$authHeader) {
-            // Проверяем cookie или query parameter как fallback
             return $request->cookies->get('auth_token') ?? $request->query->get('token');
         }
 
@@ -73,7 +79,6 @@ class JwtGuard
         return null;
     }
 
-    // Метод для генерации токена с библиотекой
     public function generateToken(User $user): string {
         $payload = [
             'userId' => $user->getId(),
