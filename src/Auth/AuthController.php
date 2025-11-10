@@ -2,19 +2,19 @@
 
 namespace App\Auth;
 
-use App\Users\UserService;
+use App\Users\UsersService;
 use App\Auth\Guards\LocalGuard;
 use App\Users\Dto\CreateUserDto;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 
 class AuthController {
-    private UserService $usersService;
+    private UsersService $usersService;
     private AuthService $authService;
     private LocalGuard $localGuard;
 
     public function __construct(
-        UserService $usersService,
+        UsersService $usersService,
         AuthService $authService,
         LocalGuard $localGuard
     ) {
@@ -23,9 +23,7 @@ class AuthController {
         $this->localGuard = $localGuard;
     }
 
-    /**
-     * @Post('/signin')
-     */
+    #[Route('/signin', methods: ['POST'])]
     public function signin(Request $request): JsonResponse
     {
         try {
@@ -41,20 +39,14 @@ class AuthController {
         }
     }
 
-    /**
-     * @Post('/signup')
-     */
+    #[Route('/signup', methods: ['POST'])]
     public function signup(Request $request): JsonResponse
     {
         try {
             $data = json_decode($request->getContent(), true);
-
             $createUserDto = CreateUserDto::fromArray($data);
-
             $this->usersService->findSameUser($createUserDto);
-
             $user = $this->usersService->create($createUserDto);
-
             unset($user['password']);
 
             return new JsonResponse($user, 201);

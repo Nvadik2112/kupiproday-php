@@ -1,134 +1,159 @@
 <?php
 
-namespace App\Users;
+namespace App\Service;
 
-use App\Users\Entities\User;
-use App\Users\Dto\CreateUserDto;
-use App\Users\Dto\UpdateUserDto;
-use App\Users\Dto\FindUserDto;
-use App\Hash\HashService;
-use Symfony\Component\HttpFoundation\Exception\BadRequestException;
+use App\Exception\BadRequestException;
+use App\Exception\ForbiddenException;
+use App\Exception\NotFoundException;
+use App\Model\User;
+use PDO;
 
-class UsersService {
-    private UserRepository $usersRepository;
-    private HashService $hashService;
-
-    public function __construct(
-        HashService $hashService,
-        UserRepository $usersRepository
-    ) {
-        $this->usersRepository = $usersRepository;
+class UserService
+{
+     public function __construct(PDO $connection, HashService $hashService)
+    {
+        $this->connection = $connection;
         $this->hashService = $hashService;
     }
 
-    public function create(CreateUserDto $createUserDto): User {
-        $hashedPassword = $this->hashService->hashPassword(
-            $createUserDto->password
-        );
+    public function create(array $data): User
+    {
+        $this->checkDuplicate($data['email'], $data['username']);
 
-        $user = $this->usersRepository->create([
-            'username' => $createUserDto->username,
-            'email' => $createUserDto->email,
-            'password' => $hashedPassword,
+        $data['password'] = $this->hashService->hashPassword($data['password']);
+        
+        $sql = "INSERT INTO users (username, email, password, created_at, updated_at) 
+                VALUES (:username, :email, :password, NOW(), NOW())";
+        
+        $stmt = $this->connection->prepare($sql);
+        $stmt->execute([
+            'username' => $data['username'],
+            'email' => $data['email'],
+            'password' => $data['password'],
         ]);
 
-        if (!$user) {
+        $userId = (int)$this->connection->lastInsertId();
+        
+        if ($userId === 0) {
             throw new BadRequestException('Не удалось создать пользователя');
         }
 
-        return $this->usersRepository->save($user);
+        return $this->findById($userId);
     }
 
-    public function findMany(string $search): array {
-        if (empty($search)) {
-            throw new BadRequestException('Параметр поиска не должен быть пустым');
-        }
-
-        $users = $this->usersRepository->findBySearch($search);
-
-        if (empty($users)) {
-            throw new NotFoundException('Пользователи не найдены');
-        }
-
-        return $users;
-    }
-
-    public function findOne(
-        $where,
-        array $select = [],
-        array $relations = []
-    ): ?User {
-        return $this->usersRepository->findOne(
-            $where,
-            $select,
-            $relations
-        );
-    }
-
-    public function findUser(
-        $filter,
-        array $select = [],
-        array $relations = []
-    ): User {
-        $user = $this->findOne($filter, $select, $relations);
-
-        if (!$user) {
+    public function findById(int $id): User
+    {
+        $sql = "SELECT * FROM users WHERE id = :id";
+        $stmt = $this->connection->prepare($sql);
+        $stmt->execute(['id' => $id]);
+        
+        $data = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if (!$data) {
             throw new NotFoundException('Пользователь не найден');
         }
 
+        return User::fromArray($data);
+    }
+
+    public function findByEmail(string $email): ?User
+    {
+        $sql = "SELECT * FROM users WHERE email = :email";
+        $stmt = $this->connection->prepare($sql);
+        $stmt->execute(['email' => $email]);
+        
+        $data = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        return $data ? User::fromArray($data) : null;
+    }
+
+    public function search(string $query): array
+    {
+        if (empty($query)) {
+            throw new BadRequestException('Параметр поиска не должен быть пустым');
+        }
+
+        $sql = "SELECT * FROM users WHERE username LIKE :query OR email LIKE :query";
+        $stmt = $this->connection->prepare($sql);
+        $stmt->execute(['query' => "%{$query}%"]);
+        
+        $usersData = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        if (empty($usersData)) {
+            throw new NotFoundException('Пользователи не найдены');
+        }
+
+        return array_map(fn($data) => User::fromArray($data), $usersData);
+    }
+
+    public function update(int $userId, array $data): User
+    {
+        if (isset($data['email']) || isset($data['username'])) {
+            $currentUser = $this->findById($userId);
+            $email = $data['email'] ?? $currentUser->getEmail();
+            $username = $data['username'] ?? $currentUser->getUsername();
+            
+            $this->checkDuplicate($email, $username, $userId);
+        }
+
+        if (isset($data['password'])) {
+            $data['password'] = $this->hashService->hashPassword($data['password']);
+        }
+
+        $setFields = [];
+        $params = ['id' => $userId];
+
+        foreach ($data as $key => $value) {
+            $setFields[] = "{$key} = :{$key}";
+            $params[$key] = $value;
+        }
+
+        $setFields[] = "updated_at = NOW()";
+        $setClause = implode(', ', $setFields);
+
+        $sql = "UPDATE users SET {$setClause} WHERE id = :id";
+        $stmt = $this->connection->prepare($sql);
+        $stmt->execute($params);
+
+        $user = $this->findById($userId);
+        $user->clearPassword();
+        
         return $user;
     }
 
-    public function updateOne(FindUserDto $filter, UpdateUserDto $updateUserDto): User {
-        if ($updateUserDto->email || $updateUserDto->username) {
-            $this->findSameUser($updateUserDto);
-        }
-
-        if ($updateUserDto->password) {
-            $updateUserDto->password = $this->hashService->hashPassword(
-                $updateUserDto->password
-            );
-        }
-
-        $user = $this->findUser($filter);
-
-        // Обновляем поля пользователя
-        if ($updateUserDto->username) {
-            $user->setUsername($updateUserDto->username);
-        }
-        if ($updateUserDto->email) {
-            $user->setEmail($updateUserDto->email);
-        }
-        if ($updateUserDto->password) {
-            $user->setPassword($updateUserDto->password);
-        }
-
-        $updatedUser = $this->usersRepository->save($user);
-
-        $updatedUser->clearPassword();
-
-        return $updatedUser;
+    public function findWishesByUser(int $userId): array
+    {
+        $sql = "SELECT w.* FROM wishes w 
+                WHERE w.user_id = :userId";
+        
+        $stmt = $this->connection->prepare($sql);
+        $stmt->execute(['userId' => $userId]);
+        
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function findWishesByUser(FindUserDto $filter): array {
-        $user = $this->findUser($filter, [], ['wishes']);
+    private function checkDuplicate(string $email, string $username, ?int $excludeUserId = null): void
+    {
+        $sql = "SELECT COUNT(*) as count FROM users 
+                WHERE (email = :email OR username = :username)";
+        
+        $params = [
+            'email' => $email,
+            'username' => $username
+        ];
 
-        return $user->getWishes();
-    }
+        if ($excludeUserId) {
+            $sql .= " AND id != :excludeId";
+            $params['excludeId'] = $excludeUserId;
+        }
 
-    public function findSameUser($userDto): void {
-        $email = $userDto->email ?? null;
-        $username = $userDto->username ?? null;
+        $stmt = $this->connection->prepare($sql);
+        $stmt->execute($params);
+        
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        $foundUser = $this->findOne([
-            ['email', '=', $email],
-            ['username', '=', $username]
-        ]);
-
-        if ($foundUser) {
-            throw new ForbiddenException(
-                'Email или username с таким именем существует'
-            );
+        if ($result && $result['count'] > 0) {
+            throw new ForbiddenException('Email или username с таким именем существует');
         }
     }
 }

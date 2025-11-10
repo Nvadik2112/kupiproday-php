@@ -8,11 +8,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 class Application {
-    private AppModule $appModule {
-        get {
-            return $this->appModule;
-        }
-    }
+    private AppModule $appModule;
     private string $environment;
 
     public function __construct() {
@@ -37,7 +33,6 @@ class Application {
         header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With');
         header('Access-Control-Allow-Credentials: true');
 
-        // Handle preflight OPTIONS requests
         if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
             http_response_code(200);
             exit;
@@ -50,7 +45,6 @@ class Application {
             $response = $this->handleRequest($request);
             $response->send();
         } catch (\Throwable $e) {
-            // Fallback error handler
             error_log("Application error: " . $e->getMessage());
             http_response_code(500);
             header('Content-Type: application/json');
@@ -62,4 +56,11 @@ class Application {
         return $this->appModule->handle($request);
     }
 
+    public function getAppModule(): AppModule {
+        return $this->appModule;
+    }
+
+    public function getEnvironment(): string {
+        return $this->environment;
+    }
 }

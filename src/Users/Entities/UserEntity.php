@@ -59,7 +59,6 @@ class User {
         }
     }
 
-
     public function getId(): ?int { return $this->id; }
     public function getCreatedAt(): \DateTime { return $this->createdAt; }
     public function getUpdatedAt(): \DateTime { return $this->updatedAt; }
@@ -69,7 +68,6 @@ class User {
     public function getEmail(): string { return $this->email; }
     public function getPassword(): string { return $this->password; }
 
-    // Setters используют статические валидаторы
     public function setUsername(string $username): void {
         self::validateUsername($username);
         $this->username = $username;
@@ -103,8 +101,7 @@ class User {
     public function setId(int $id): void {
         $this->id = $id;
     }
-
-    // Utility methods
+   
     public function toArray(): array {
         return [
             'id' => $this->id,

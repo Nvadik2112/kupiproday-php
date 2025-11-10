@@ -1,6 +1,5 @@
 <?php
 
-
 namespace App\Config;
 
 require_once 'vendor/autoload.php';

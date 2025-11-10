@@ -12,7 +12,7 @@ use Firebase\JWT\Key;
 class AuthService {
     private HashService $hashService;
     private $userService;
-    private string|array|false $secretKey;
+    private string $secretKey;
     private string $algorithm = 'HS256';
 
     public function __construct(HashService $hashService) {
