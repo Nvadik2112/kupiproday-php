@@ -6,7 +6,6 @@ use App\Users\UsersService;
 use App\Auth\Guards\JwtGuard;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Annotation\Route;
 
 class UsersController 
 {

@@ -1,8 +1,6 @@
 <?php
 
-namespace Auth\Dto;
-
-use Symfony\Component\Validator\Constraints as Assert;
+namespace App\Auth\Dto;
 
 class SigninDto {
     /**

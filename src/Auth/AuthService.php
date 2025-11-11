@@ -6,17 +6,18 @@ require_once __DIR__ . '/../../vendor/autoload.php';
 
 use App\Exceptions\UnauthorizedException;
 use App\Hash\HashService;
+use App\Users\UsersService;
 use Firebase\JWT\JWT;
-use Firebase\JWT\Key;
 
 class AuthService {
     private HashService $hashService;
-    private $userService;
+    private UsersService $usersService;
     private string $secretKey;
     private string $algorithm = 'HS256';
 
     public function __construct(HashService $hashService) {
         $this->hashService = $hashService;
+        $this->usersService = new UsersService();
         $this->secretKey = getenv('JWT_SECRET') ?: 'your-fallback-secret-key';
     }
 
@@ -40,7 +41,7 @@ class AuthService {
      * @throws UnauthorizedException
      */
     public function validatePassword($username, $password) {
-        $user = $this->userService->findByUsername($username);
+        $user = $this->usersService->findByUsername($username);
 
         if (!$user) {
             throw new UnauthorizedException('Учетная запись не найдена');

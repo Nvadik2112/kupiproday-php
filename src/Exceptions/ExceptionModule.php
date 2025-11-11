@@ -5,9 +5,13 @@ namespace App\Exceptions;
 use Symfony\Component\ErrorHandler\ErrorHandler;
 
 class ExceptionModule {
-    private static $instance;
-    private $apiHandler;
-    private $isInitialized = false;
+    private static ExceptionModule $instance;
+    private ApiExceptionHandler $apiHandler {
+        get {
+            return $this->apiHandler;
+        }
+    }
+    private bool $isInitialized = false;
 
     public static function getInstance(): self {
         if (self::$instance === null) {
@@ -42,12 +46,8 @@ class ExceptionModule {
     }
 
     private function setupDevelopmentHandlers(): void {
-        // В разработке можно добавить Whoops или детальное логирование
         ErrorHandler::register();
         set_exception_handler([$this->apiHandler, 'handleException']);
     }
 
-    public function getApiHandler(): ApiExceptionHandler {
-        return $this->apiHandler;
-    }
 }

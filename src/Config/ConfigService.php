@@ -4,7 +4,7 @@ namespace App\Config;
 
 require_once 'vendor/autoload.php';
 
-use Dotenv\Dotenv;use PSpell\Config;
+use Dotenv\Dotenv;
 
 class ConfigService {
     private Dotenv $dotenv;

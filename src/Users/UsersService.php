@@ -1,21 +1,20 @@
 <?php
 
-namespace App\Service;
+namespace App\Users;
 
-use App\Exception\BadRequestException;
-use App\Exception\ForbiddenException;
-use App\Exception\NotFoundException;
-use App\Model\User;
+use AllowDynamicProperties;
+use App\Hash\HashService;
+use App\Users\Entities\User;
 use PDO;
+use Symfony\Component\HttpFoundation\Exception\BadRequestException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
-class UserService
-{
-     public function __construct(PDO $connection, HashService $hashService)
+#[AllowDynamicProperties]
+class UsersService
+{     public function __construct(HashService $hashService)
     {
-        $this->connection = $connection;
         $this->hashService = $hashService;
     }
-
     public function create(array $data): User
     {
         $this->checkDuplicate($data['email'], $data['username']);

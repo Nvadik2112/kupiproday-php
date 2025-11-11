@@ -5,8 +5,8 @@ namespace App\Auth;
 require_once __DIR__ . '/../../vendor/autoload.php';
 
 use App\Exceptions\UnauthorizedException;
-use Auth\Dto\SigninDto;
-use Auth\Exceptions\ValidationException;
+use App\Auth\Dto\SigninDto;
+use App\Auth\Exceptions\ValidationException;
 use App\Constants\Status;
 use Symfony\Component\Validator\Validation;
 use Symfony\Component\Validator\Validator\ValidatorInterface;

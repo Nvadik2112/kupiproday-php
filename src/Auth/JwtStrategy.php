@@ -7,17 +7,18 @@ require_once __DIR__ . '/../users/UsersService.php';
 require_once __DIR__ . '/../Config/ConfigService.php';
 
 use App\Exceptions\UnauthorizedException;
+use App\Service\UsersService;
 use Exception;
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 
 class JwtStrategy {
     private $configService;
-    private $userService;
+    private UsersService $usersService;
     private $secretKey;
 
     public function __construct() {
-        $this->userService = new UserService();
+        $this->userService = new UsersService();
         $this->secretKey = $this->configService->get('JWT_KEY');
     }
 

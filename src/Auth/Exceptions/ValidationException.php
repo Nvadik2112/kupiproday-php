@@ -1,11 +1,11 @@
 <?php
 
-namespace Auth\Exceptions;
+namespace App\Auth\Exceptions;
 
 use Exception;
 
 class ValidationException extends Exception {
-    private $errors;
+    private array $errors;
 
     public function __construct(array $errors, $code = 400)
     {
@@ -13,7 +13,7 @@ class ValidationException extends Exception {
         parent::__construct('Validation failed', $code);
     }
 
-    public function getResponse()
+    public function getResponse(): false|string
     {
         http_response_code($this->getCode());
         header('Content-Type: application/json');
