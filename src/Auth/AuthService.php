@@ -4,7 +4,7 @@ namespace App\Auth;
 
 require_once __DIR__ . '/../../vendor/autoload.php';
 
-use App\Exceptions\UnauthorizedException;
+use App\Exceptions\Domain\UnauthorizedException;
 use App\Hash\HashService;
 use App\Users\UsersService;
 use Firebase\JWT\JWT;

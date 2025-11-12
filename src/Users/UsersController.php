@@ -35,20 +35,20 @@ class UsersController
         }
     }
 
-    #[Route('/users/me/wishes', methods: ['GET'])]
-    public function getProfileWishes(Request $request): JsonResponse
-    {
-        try {
-            $user = $this->jwtGuard->validate($request);
-            $wishes = $this->usersService->findWishesByUser($user->getId());
+    // #[Route('/users/me/wishes', methods: ['GET'])]
+    // public function getProfileWishes(Request $request): JsonResponse
+    // {
+    //     try {
+    //         $user = $this->jwtGuard->validate($request);
+    //         $wishes = $this->usersService->findWishesByUser($user->getId());
 
-            return new JsonResponse($wishes);
-        } catch (\Exception $e) {
-            return new JsonResponse([
-                'error' => $e->getMessage()
-            ], $e->getCode() ?: 401);
-        }
-    }
+    //         return new JsonResponse($wishes);
+    //    } catch (\Exception $e) {
+    //         return new JsonResponse([
+    //             'error' => $e->getMessage()
+    //         ], $e->getCode() ?: 401);
+    //     }
+    // }
 
     #[Route('/users/{id}', methods: ['GET'])]
     public function getUser(int $id): JsonResponse
@@ -64,19 +64,19 @@ class UsersController
         }
     }
 
-    #[Route('/users/{id}/wishes', methods: ['GET'])]
-    public function getUserWishes(int $id): JsonResponse
-    {
-        try {
-            $wishes = $this->usersService->findWishesByUser($id);
+    // #[Route('/users/{id}/wishes', methods: ['GET'])]
+    // public function getUserWishes(int $id): JsonResponse
+    // {
+    //     try {
+    //         $wishes = $this->usersService->findWishesByUser($id);
 
-            return new JsonResponse($wishes);
-        } catch (\Exception $e) {
-            return new JsonResponse([
-                'error' => $e->getMessage()
-            ], $e->getCode() ?: 404);
-        }
-    }
+    //         return new JsonResponse($wishes);
+    //     } catch (\Exception $e) {
+    //         return new JsonResponse([
+    //             'error' => $e->getMessage()
+    //         ], $e->getCode() ?: 404);
+    //     }
+    // }
 
     #[Route('/users/me', methods: ['PATCH'])]
     public function updateMyProfile(Request $request): JsonResponse
@@ -116,20 +116,6 @@ class UsersController
             return new JsonResponse([
                 'error' => $e->getMessage()
             ], $e->getCode() ?: 400);
-        }
-    }
-
-    #[Route('/users/by-username/{username}', methods: ['GET'])]
-    public function getUserByUsername(string $username): JsonResponse
-    {
-        try {
-            $user = $this->usersService->findByUsername($username);
-
-            return new JsonResponse($user->toArray());
-        } catch (\Exception $e) {
-            return new JsonResponse([
-                'error' => $e->getMessage()
-            ], $e->getCode() ?: 404);
         }
     }
 }

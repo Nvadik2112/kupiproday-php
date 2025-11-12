@@ -45,7 +45,6 @@ class AuthController {
         try {
             $data = json_decode($request->getContent(), true);
             $createUserDto = CreateUserDto::fromArray($data);
-            $this->usersService->findSameUser($createUserDto);
             $user = $this->usersService->create($createUserDto);
             unset($user['password']);
 

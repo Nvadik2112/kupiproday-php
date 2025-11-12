@@ -4,7 +4,7 @@ namespace App\Auth;
 
 require_once __DIR__ . '/../../vendor/autoload.php';
 
-use App\Exceptions\UnauthorizedException;
+use App\Exceptions\Domain\UnauthorizedException;
 use App\Auth\Dto\SigninDto;
 use App\Auth\Exceptions\ValidationException;
 use App\Constants\Status;
@@ -21,7 +21,6 @@ class LocalStrategy {
     }
 
     /**
-     * @throws UnauthorizedException
      * @throws ValidationException
      */
     public function validate($username, $password) {
@@ -39,7 +38,7 @@ class LocalStrategy {
                 $errors[] = $violation->getMessage();
             }
 
-            throw new ValidationException($errors, Status::BAD_REQUEST);
+            throw new ValidationException($errors);
         }
 
         $user = $this->authService->validatePassword($username, $password);

@@ -2,15 +2,13 @@
 
 namespace App\Auth\Exceptions;
 
-use Exception;
-
-class ValidationException extends Exception {
+class ValidationException extends \Exception {
     private array $errors;
 
-    public function __construct(array $errors, $code = 400)
+    public function __construct(array $errors)
     {
         $this->errors = $errors;
-        parent::__construct('Validation failed', $code);
+        parent::__construct('Validation failed');
     }
 
     public function getResponse(): false|string

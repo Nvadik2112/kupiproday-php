@@ -2,6 +2,7 @@
 
 namespace App\Users;
 
+use App\Auth\AuthService;
 use App\Hash\HashService;
 use App\Auth\Guards\JwtGuard;
 use PDO;
@@ -22,22 +23,20 @@ class UsersModule {
     }
 
     private function initialize(): void {
-        $hashService = new HashService();
-        $jwtGuard = new JwtGuard();
+        $this->services['hashService'] = new HashService();
+        $this->services['jwtGuard'] = new JwtGuard();
+        $this->services['pdo'] = $this->createPDOConnection();
 
-        $pdo = $this->createPDOConnection();
-        // $wishesService = WishesModule::getInstance()->getWishesService(); // WishesModule
 
-        $this->services['usersService'] = new UsersService($pdo, $hashService);
+
+        $this->services['usersService'] = new UsersService($this->services['pdo'], $this->services['hashService']);
 
         $this->services['usersController'] = new UsersController(
             $this->services['usersService'],
-            $jwtGuard
+            $this->services['jwtGuard']
         );
 
-        $this->services['hashService'] = $hashService;
-        $this->services['pdo'] = $pdo;
-        $this->services['jwtGuard'] = $jwtGuard;
+        // $wishesService = WishesModule::getInstance()->getWishesService(); // WishesModule
         // $this->services['wishesService'] = $wishesService;
     }
 

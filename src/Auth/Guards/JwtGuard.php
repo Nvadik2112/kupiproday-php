@@ -4,7 +4,7 @@
 namespace App\Auth\Guards;
 
 use App\Auth\JwtStrategy;
-use App\Exceptions\UnauthorizedException;
+use App\Exceptions\Domain\UnauthorizedException;
 use App\Users\Entities\User;
 use Exception;
 use Firebase\JWT\JWT;
@@ -48,16 +48,14 @@ class JwtGuard
         }
 
         try {
-            // Декодируем JWT токен используя библиотеку
             $payload = JWT::decode($token, new Key($this->secretKey, 'HS256'));
             $payloadArray = (array)$payload;
 
-            // Создаем пользователя из payload
             return new User(
-                $payloadArray['username'] ?? '',
-                $payloadArray['email'] ?? '',
-                $payloadArray['about'] ?? 'Пока ничего не рассказал о себе',
-                $payloadArray['avatar'] ?? 'https://i.pravatar.cc/300'
+                $payloadArray['username'],
+                $payloadArray['email'],
+                $payloadArray['about'],
+                $payloadArray['avatar']
             );
 
         } catch (\Exception $e) {

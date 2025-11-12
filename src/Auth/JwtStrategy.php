@@ -6,7 +6,7 @@ require_once __DIR__ . '/../../vendor/autoload.php';
 require_once __DIR__ . '/../users/UsersService.php';
 require_once __DIR__ . '/../Config/ConfigService.php';
 
-use App\Exceptions\UnauthorizedException;
+use App\Exceptions\Http\HttpUnauthorizedException;
 use App\Service\UsersService;
 use Exception;
 use Firebase\JWT\JWT;
@@ -87,7 +87,7 @@ class JwtStrategy {
             $request['user'] = $user;
             return $request;
 
-        } catch (UnauthorizedException $e) {
+        } catch (HttpUnauthorizedException $e) {
             http_response_code($e->getCode() ?: 401);
             echo json_encode(['error' => $e->getMessage()]);
             exit;

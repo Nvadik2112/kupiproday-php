@@ -101,6 +101,30 @@ class User {
     public function setId(int $id): void {
         $this->id = $id;
     }
+
+    public static function fromArray(array $data): self {
+        $user = new self(
+            $data['username'],
+            $data['email'],
+            $data['password'],
+            $data['about'],
+            $data['avatar']
+        );
+
+        if (isset($data['id'])) {
+            $user->setId((int)$data['id']);
+        }
+
+        if (isset($data['createdAt']) && is_string($data['createdAt'])) {
+            $user->createdAt = \DateTime::createFromFormat('Y-m-d\TH:i:s.u\Z', $data['createdAt']);
+        }
+
+        if (isset($data['updatedAt']) && is_string($data['updatedAt'])) {
+            $user->updatedAt = \DateTime::createFromFormat('Y-m-d\TH:i:s.u\Z', $data['updatedAt']);
+        }
+
+        return $user;
+    }
    
     public function toArray(): array {
         return [

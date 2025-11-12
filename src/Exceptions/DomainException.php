@@ -2,13 +2,12 @@
 
 namespace App\Exceptions;
 
-abstract class HttpException extends \Exception
+abstract class DomainException extends \Exception
 {
     public function __construct(
         string $message = "",
-        int $code = 0,
         \Throwable $previous = null
     ) {
-        parent::__construct($message, $code, $previous);
+        parent::__construct($message, 0, $previous);
     }
 }

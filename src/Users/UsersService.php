@@ -3,22 +3,29 @@
 namespace App\Users;
 
 use AllowDynamicProperties;
+use App\Exceptions\Domain\BadRequestException;
+use App\Exceptions\Domain\ForbiddenException;
+use App\Exceptions\Domain\NotFoundException;
 use App\Hash\HashService;
 use App\Users\Entities\User;
 use PDO;
-use Symfony\Component\HttpFoundation\Exception\BadRequestException;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 #[AllowDynamicProperties]
 class UsersService
-{     public function __construct(HashService $hashService)
+{     public function __construct(PDO $connection, HashService $hashService)
     {
+        $this->connection = $connection;
         $this->hashService = $hashService;
     }
-    public function create(array $data): User
+
+    /**
+     * @throws NotFoundException
+     * @throws ForbiddenException
+     * @throws BadRequestException
+     */
+    public function create($data): User
     {
         $this->checkDuplicate($data['email'], $data['username']);
-
         $data['password'] = $this->hashService->hashPassword($data['password']);
         
         $sql = "INSERT INTO users (username, email, password, created_at, updated_at) 
@@ -40,6 +47,9 @@ class UsersService
         return $this->findById($userId);
     }
 
+    /**
+     * @throws NotFoundException
+     */
     public function findById(int $id): User
     {
         $sql = "SELECT * FROM users WHERE id = :id";
@@ -66,6 +76,10 @@ class UsersService
         return $data ? User::fromArray($data) : null;
     }
 
+    /**
+     * @throws NotFoundException
+     * @throws BadRequestException
+     */
     public function search(string $query): array
     {
         if (empty($query)) {
@@ -85,13 +99,16 @@ class UsersService
         return array_map(fn($data) => User::fromArray($data), $usersData);
     }
 
+    /**
+     * @throws NotFoundException
+     * @throws ForbiddenException
+     */
     public function update(int $userId, array $data): User
     {
         if (isset($data['email']) || isset($data['username'])) {
             $currentUser = $this->findById($userId);
             $email = $data['email'] ?? $currentUser->getEmail();
             $username = $data['username'] ?? $currentUser->getUsername();
-            
             $this->checkDuplicate($email, $username, $userId);
         }
 
@@ -120,17 +137,20 @@ class UsersService
         return $user;
     }
 
-    public function findWishesByUser(int $userId): array
-    {
-        $sql = "SELECT w.* FROM wishes w 
-                WHERE w.user_id = :userId";
+    //public function findWishesByUser(int $userId): array
+    //{
+       // $sql = "SELECT w.* FROM wishes w
+       //         WHERE w.user_id = :userId";
         
-        $stmt = $this->connection->prepare($sql);
-        $stmt->execute(['userId' => $userId]);
+       //$stmt = $this->connection->prepare($sql);
+       // $stmt->execute(['userId' => $userId]);
         
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }
+     //   return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    //}
 
+    /**
+     * @throws ForbiddenException
+     */
     private function checkDuplicate(string $email, string $username, ?int $excludeUserId = null): void
     {
         $sql = "SELECT COUNT(*) as count FROM users 
