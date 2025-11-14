@@ -89,9 +89,9 @@ class UsersService
         $sql = "SELECT * FROM users WHERE username LIKE :query OR email LIKE :query";
         $stmt = $this->connection->prepare($sql);
         $stmt->execute(['query' => "%{$query}%"]);
-        
+
         $usersData = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        
+
         if (empty($usersData)) {
             throw new NotFoundException('Пользователи не найдены');
         }

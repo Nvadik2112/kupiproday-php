@@ -3,7 +3,6 @@
 namespace App\Bootstrap;
 
 use App\AppModule;
-use App\Exceptions\ApiErrorHandler;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -18,7 +17,12 @@ class Application {
 
     private function initialize(): void {
         // Регистрируем обработчик исключений
-        ApiErrorHandler::register();
+        if ($this->environment === 'production') {
+            set_exception_handler(function () {
+                http_response_code(500);
+                echo json_encode(['error' => 'Internal Server Error']);
+            });
+        }
 
         // Инициализируем модуль приложения
         $this->appModule = new AppModule();

@@ -4,6 +4,8 @@ namespace App\Auth;
 
 require_once __DIR__ . '/../../vendor/autoload.php';
 
+use App\Exceptions\Domain\BadRequestException;
+use App\Exceptions\Domain\NotFoundException;
 use App\Exceptions\Domain\UnauthorizedException;
 use App\Hash\HashService;
 use App\Users\UsersService;
@@ -15,9 +17,9 @@ class AuthService {
     private string $secretKey;
     private string $algorithm = 'HS256';
 
-    public function __construct(HashService $hashService) {
+    public function __construct(HashService $hashService, UsersService $usersService) {
         $this->hashService = $hashService;
-        $this->usersService = new UsersService();
+        $this->usersService = $usersService;
         $this->secretKey = getenv('JWT_SECRET') ?: 'your-fallback-secret-key';
     }
 
@@ -40,8 +42,13 @@ class AuthService {
     /**
      * @throws UnauthorizedException
      */
-    public function validatePassword($username, $password) {
-        $user = $this->usersService->findByUsername($username);
+    public function validatePassword($username, $password): array
+    {
+        try {
+            $user = $this->usersService->search($username);
+        } catch (BadRequestException | NotFoundException $e) {
+            $user = null;
+        }
 
         if (!$user) {
             throw new UnauthorizedException('Учетная запись не найдена');

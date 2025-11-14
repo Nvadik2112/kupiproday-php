@@ -11,7 +11,6 @@ use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 use Symfony\Component\HttpFoundation\Request;
 
-
 class JwtGuard
 {
     private string $secretKey;
