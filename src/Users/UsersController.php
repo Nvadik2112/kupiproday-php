@@ -4,6 +4,7 @@ namespace App\Users;
 
 use App\Users\UsersService;
 use App\Auth\Guards\JwtGuard;
+use App\Constants\Status;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -60,7 +61,7 @@ class UsersController
         } catch (\Exception $e) {
             return new JsonResponse([
                 'error' => $e->getMessage()
-            ], $e->getCode() ?: 404);
+            ], $e->getCode() ?: Status::NOT_FOUND);
         }
     }
 
@@ -74,7 +75,7 @@ class UsersController
     //     } catch (\Exception $e) {
     //         return new JsonResponse([
     //             'error' => $e->getMessage()
-    //         ], $e->getCode() ?: 404);
+    //         ], $e->getCode() ?: Status::NOT_FOUND);
     //     }
     // }
 
@@ -94,7 +95,7 @@ class UsersController
         } catch (\Exception $e) {
             return new JsonResponse([
                 'error' => $e->getMessage()
-            ], $e->getCode() ?: 400);
+            ], $e->getCode() ?: Status::BAD_REQUEST);
         }
     }
 

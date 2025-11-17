@@ -2,11 +2,11 @@
 
 namespace App\Exceptions;
 
+use App\Constants\Status;
 use App\Exceptions\Domain\NotFoundException;
 use App\Exceptions\Domain\BadRequestException;
 use App\Exceptions\Domain\ForbiddenException;
 use App\Exceptions\Domain\UnauthorizedException;
-
 use App\Exceptions\Http\HttpNotFoundException;
 use App\Exceptions\Http\HttpBadRequestException;
 use App\Exceptions\Http\HttpForbiddenException;
@@ -38,7 +38,7 @@ class ExceptionHandler
 
     private function sendResponse(\Throwable $e): void
     {
-        http_response_code($e->getCode() ?: 500);
+        http_response_code($e->getCode() ?: Status::DEFAULT_ERR);
         header('Content-Type: application/json');
 
         $response = [

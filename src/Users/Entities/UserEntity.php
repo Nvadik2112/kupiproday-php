@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Users\Entities;
+use App\Constants\Status;
 
 class User {
     private ?int $id = null;
@@ -48,7 +49,7 @@ class User {
     }
 
     public static function validateAbout(string $about): void {
-        if (strlen($about) < 2 || strlen($about) > 200) {
+        if (strlen($about) < 2 || strlen($about) > Status::OK) {
             throw new \InvalidArgumentException('About must be between 2 and 200 characters');
         }
     }

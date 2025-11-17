@@ -29,7 +29,7 @@ class JwtStrategy {
         $token = $this->extractJwtFromRequest($request);
 
         if (!$token) {
-            throw new Exception('Токен не предоставлен', 401);
+            throw new Exception('Токен не предоставлен', Status::UNAUTHORIZED);
         }
 
         try {
@@ -38,13 +38,13 @@ class JwtStrategy {
             $user = $this->userService->findOne(['id' => $jwtPayload->sub]);
 
             if (!$user) {
-                throw new Exception('Необходимо авторизоваться', 401);
+                throw new Exception('Необходимо авторизоваться', Status::UNAUTHORIZED);
             }
 
             return $user;
 
         } catch (Exception $e) {
-            throw new Exception('Ошибка аутентификации: ' . $e->getMessage(), 401);
+            throw new Exception('Ошибка аутентификации: ' . $e->getMessage(), Status::UNAUTHORIZED);
         }
     }
 
@@ -88,7 +88,7 @@ class JwtStrategy {
             return $request;
 
         } catch (HttpUnauthorizedException $e) {
-            http_response_code($e->getCode() ?: 401);
+            http_response_code($e->getCode() ?: Status::UNAUTHORIZED);
             echo json_encode(['error' => $e->getMessage()]);
             exit;
         }

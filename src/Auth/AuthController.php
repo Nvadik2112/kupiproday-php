@@ -5,6 +5,7 @@ namespace App\Auth;
 use App\Users\UsersService;
 use App\Auth\Guards\LocalGuard;
 use App\Users\Dto\CreateUserDto;
+use App\Constants\Status;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -35,7 +36,7 @@ class AuthController {
         } catch (\Exception $e) {
             return new JsonResponse([
                 'error' => $e->getMessage()
-            ], $e->getCode() ?: 401);
+            ], $e->getCode() ?: Status::UNAUTHORIZED);
         }
     }
 
@@ -48,12 +49,12 @@ class AuthController {
             $user = $this->usersService->create($createUserDto);
             unset($user['password']);
 
-            return new JsonResponse($user, 201);
+            return new JsonResponse($user, Status::CREATED);
 
         } catch (\Exception $e) {
             return new JsonResponse([
                 'error' => $e->getMessage()
-            ], $e->getCode() ?: 400);
+            ], $e->getCode() ?: Status::BAD_REQUEST);
         }
     }
 }

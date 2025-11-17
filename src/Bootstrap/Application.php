@@ -2,12 +2,14 @@
 
 namespace App\Bootstrap;
 
-use App\AppModule;
+use App\Kernel;
+use App\Constants\Status;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class Application {
-    private AppModule $appModule;
+class Application 
+{
+    private Kernel $kernel;
     private string $environment;
 
     public function __construct() {
@@ -16,52 +18,48 @@ class Application {
     }
 
     private function initialize(): void {
-        // Регистрируем обработчик исключений
-        if ($this->environment === 'production') {
-            set_exception_handler(function () {
-                http_response_code(500);
-                echo json_encode(['error' => 'Internal Server Error']);
-            });
-        }
-
-        // Инициализируем модуль приложения
-        $this->appModule = new AppModule();
-
-        // Настраиваем CORS
+        // Ваша кастомная инициализация
         $this->setupCors();
+        $this->setupErrorHandling();
+        
+        // Создаем Symfony Kernel
+        $this->kernel = new Kernel($this->environment, $this->environment === 'dev');
     }
 
     private function setupCors(): void {
-        header('Access-Control-Allow-Origin: *');
-        header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS, PATCH');
-        header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With');
-        header('Access-Control-Allow-Credentials: true');
-
         if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-            http_response_code(200);
+            http_response_code(Status::DEFAULT_ERR);
             exit;
+        }
+    }
+
+    private function setupErrorHandling(): void {
+        if ($this->environment === 'production') {
+            set_exception_handler(function (\Throwable $e) {
+                error_log("Unhandled exception: " . $e->getMessage());
+                http_response_code(Status::DEFAULT_ERR);
+                header('Content-Type: application/json');
+                echo json_encode(['error' => 'Internal Server Error']);
+            });
         }
     }
 
     public function run(): void {
         try {
             $request = Request::createFromGlobals();
-            $response = $this->handleRequest($request);
+            $response = $this->kernel->handle($request);
             $response->send();
+            $this->kernel->terminate($request, $response);
         } catch (\Throwable $e) {
             error_log("Application error: " . $e->getMessage());
-            http_response_code(500);
+            http_response_code(Status::DEFAULT_ERR);
             header('Content-Type: application/json');
             echo json_encode(['error' => 'Internal Server Error']);
         }
     }
 
-    private function handleRequest(Request $request): Response {
-        return $this->appModule->handle($request);
-    }
-
-    public function getAppModule(): AppModule {
-        return $this->appModule;
+    public function getKernel(): Kernel {
+        return $this->kernel;
     }
 
     public function getEnvironment(): string {
