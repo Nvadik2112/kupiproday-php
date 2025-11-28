@@ -2,7 +2,7 @@
 
 namespace App\Config;
 
-require_once 'vendor/autoload.php';
+require_once __DIR__ . '/../../vendor/autoload.php';
 
 use Dotenv\Dotenv;
 
@@ -11,7 +11,7 @@ class ConfigService {
 
     public function __construct()
     {
-        $this->dotenv = Dotenv::createImmutable(__DIR__ . '/../');
+        $this->dotenv = Dotenv::createImmutable(__DIR__ . '/../../');
         $this->dotenv->load();
     }
 

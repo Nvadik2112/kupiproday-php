@@ -3,7 +3,7 @@
 namespace App\Users\Entities;
 use App\Constants\Status;
 
-class User {
+class UserEntity {
     private ?int $id = null;
     private \DateTime $createdAt;
     private \DateTime $updatedAt;
@@ -17,8 +17,8 @@ class User {
         string $username,
         string $email,
         string $password,
-        string $about = 'Пока ничего не рассказал о себе',
-        string $avatar = 'https://i.pravatar.cc/300'
+        string $about,
+        string $avatar,
     ) {
         $this->setUsername($username);
         $this->setEmail($email);
@@ -108,8 +108,8 @@ class User {
             $data['username'],
             $data['email'],
             $data['password'],
-            $data['about'],
-            $data['avatar']
+            $data['about'] ?? 'Пока ничего не рассказал о себе',
+            $data['avatar'] ?? 'https://i.pravatar.cc/300',
         );
 
         if (isset($data['id'])) {

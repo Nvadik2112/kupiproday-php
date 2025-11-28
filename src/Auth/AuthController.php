@@ -24,7 +24,6 @@ class AuthController {
         $this->localGuard = $localGuard;
     }
 
-    #[Route('/signin', methods: ['POST'])]
     public function signin(Request $request): JsonResponse
     {
         try {
@@ -40,21 +39,27 @@ class AuthController {
         }
     }
 
-    #[Route('/signup', methods: ['POST'])]
     public function signup(Request $request): JsonResponse
     {
         try {
             $data = json_decode($request->getContent(), true);
             $createUserDto = CreateUserDto::fromArray($data);
-            $user = $this->usersService->create($createUserDto);
+            $user = $this->usersService->create($createUserDto->toArray());
             unset($user['password']);
 
             return new JsonResponse($user, Status::CREATED);
 
         } catch (\Exception $e) {
+            $code = (int)$e->getCode();
+
+            if ($code < 100 || $code >= 600) {
+                $code = Status::BAD_REQUEST;
+            }
+
+
             return new JsonResponse([
                 'error' => $e->getMessage()
-            ], $e->getCode() ?: Status::BAD_REQUEST);
+            ],  $code);
         }
     }
 }

@@ -2,20 +2,44 @@
 
 namespace App\Users;
 
-use AllowDynamicProperties;
 use App\Exceptions\Domain\BadRequestException;
 use App\Exceptions\Domain\ForbiddenException;
 use App\Exceptions\Domain\NotFoundException;
 use App\Hash\HashService;
-use App\Users\Entities\User;
+use App\Users\Entities\UserEntity;
 use PDO;
 
-#[AllowDynamicProperties]
 class UsersService
-{     public function __construct(PDO $connection, HashService $hashService)
+{
+    private HashService $hashService;
+    private PDO $connection;
+
+    public function __construct(PDO $connection, HashService $hashService)
     {
         $this->connection = $connection;
         $this->hashService = $hashService;
+        $this->ensureTableExists();
+    }
+
+    private function createTable(): void
+    {
+        $sql = "
+            CREATE TABLE IF NOT EXISTS users (
+                id SERIAL PRIMARY KEY,
+                username VARCHAR(100) UNIQUE NOT NULL,
+                email VARCHAR(255) UNIQUE NOT NULL,
+                password VARCHAR(255) NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        ";
+
+        $this->connection->exec($sql);
+    }
+
+    private function ensureTableExists(): void
+    {
+        $this->createTable();
     }
 
     /**
@@ -23,7 +47,7 @@ class UsersService
      * @throws ForbiddenException
      * @throws BadRequestException
      */
-    public function create($data): User
+    public function create($data): UserEntity
     {
         $this->checkDuplicate($data['email'], $data['username']);
         $data['password'] = $this->hashService->hashPassword($data['password']);
@@ -50,7 +74,7 @@ class UsersService
     /**
      * @throws NotFoundException
      */
-    public function findById(int $id): User
+    public function findById(int $id): UserEntity
     {
         $sql = "SELECT * FROM users WHERE id = :id";
         $stmt = $this->connection->prepare($sql);
@@ -62,10 +86,10 @@ class UsersService
             throw new NotFoundException('Пользователь не найден');
         }
 
-        return User::fromArray($data);
+        return UserEntity::fromArray($data);
     }
 
-    public function findByEmail(string $email): ?User
+    public function findByEmail(string $email): ?UserEntity
     {
         $sql = "SELECT * FROM users WHERE email = :email";
         $stmt = $this->connection->prepare($sql);
@@ -73,7 +97,7 @@ class UsersService
         
         $data = $stmt->fetch(PDO::FETCH_ASSOC);
         
-        return $data ? User::fromArray($data) : null;
+        return $data ? UserEntity::fromArray($data) : null;
     }
 
     /**
@@ -96,14 +120,14 @@ class UsersService
             throw new NotFoundException('Пользователи не найдены');
         }
 
-        return array_map(fn($data) => User::fromArray($data), $usersData);
+        return array_map(fn($data) => UserEntity::fromArray($data), $usersData);
     }
 
     /**
      * @throws NotFoundException
      * @throws ForbiddenException
      */
-    public function update(int $userId, array $data): User
+    public function update(int $userId, array $data): UserEntity
     {
         if (isset($data['email']) || isset($data['username'])) {
             $currentUser = $this->findById($userId);

@@ -79,5 +79,5 @@ Desktop.ini
 /build/
 /phar/
 
-# env
+# .env
 .env

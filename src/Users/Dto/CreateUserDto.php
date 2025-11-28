@@ -2,7 +2,7 @@
 
 namespace App\Users\Dto;
 
-use App\Users\Entities\User;
+use App\Users\Entities\UserEntity;
 
 class CreateUserDto 
 {
@@ -29,11 +29,11 @@ class CreateUserDto
 
     private function validate(): void
     {
-        User::validateUsername($this->username);
-        User::validateEmail($this->email);
-        User::validatePassword($this->password);
-        User::validateAbout($this->about);
-        User::validateAvatar($this->avatar);
+        UserEntity::validateUsername($this->username);
+        UserEntity::validateEmail($this->email);
+        UserEntity::validatePassword($this->password);
+        UserEntity::validateAbout($this->about);
+        UserEntity::validateAvatar($this->avatar);
     }
 
     public function toArray(): array

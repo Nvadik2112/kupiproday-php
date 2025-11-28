@@ -2,7 +2,7 @@
 
 namespace App\Users\Dto;
 
-use App\Users\Entities\User;
+use App\Users\Entities\UserEntity;
 
 class UpdateUserDto {
     public function __construct(
@@ -12,11 +12,11 @@ class UpdateUserDto {
         public ?string $about = null,
         public ?string $avatar = null
     ) {
-        if ($this->username !== null) User::validateUsername($this->username);
-        if ($this->email !== null) User::validateEmail($this->email);
-        if ($this->password !== null) User::validatePassword($this->password);
-        if ($this->about !== null) User::validateAbout($this->about);
-        if ($this->avatar !== null) User::validateAvatar($this->avatar);
+        if ($this->username !== null) UserEntity::validateUsername($this->username);
+        if ($this->email !== null) UserEntity::validateEmail($this->email);
+        if ($this->password !== null) UserEntity::validatePassword($this->password);
+        if ($this->about !== null) UserEntity::validateAbout($this->about);
+        if ($this->avatar !== null) UserEntity::validateAvatar($this->avatar);
     }
 
     public static function fromArray(array $data): self {

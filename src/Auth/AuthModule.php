@@ -4,6 +4,7 @@ namespace App\Auth;
 
 require_once __DIR__ . '/../../vendor/autoload.php';
 
+use App\Auth\Guards\LocalGuard;
 use App\Users\UsersModule;
 use App\Hash\HashService;
 use App\Config\ConfigService;
@@ -35,8 +36,9 @@ class AuthModule {
         ];
 
         $this->services['authService'] = new AuthService($hashService, $usersModule->getUserService());
-        $this->services['jwtStrategy'] = new JwtStrategy($configService, $usersModule->getUserService());
+        $this->services['jwtStrategy'] = new JwtStrategy($usersModule->getUserService());
         $this->services['localStrategy'] = new LocalStrategy($this->services['authService']);
+        $this->services['localGuard'] = new LocalGuard();
 
         $this->services['authController'] = new AuthController(
             $usersModule->getUserService(),

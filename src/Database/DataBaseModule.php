@@ -20,12 +20,12 @@ class DataBaseModule {
             'port' => $_ENV['DB_PORT'] ?? 5432,
             'username' => $_ENV['DB_USER'] ?? 'student',
             'password' => $_ENV['DB_PASSWORD'] ?? 'student',
-            'database' => $_ENV['DB_NAME'] ?? 'nest_project',
+            'database' => $_ENV['DB_NAME'] ?? 'nest_project',  // ключ 'database'
             'schema' => $_ENV['DB_SCHEMA'] ?? 'kupipodariday'
         ];
 
         try {
-            $dsn = "pgsql:host={$config['host']};port={$config['port']};dbname={$config['Database']}";
+            $dsn = "pgsql:host={$config['host']};port={$config['port']};dbname={$config['database']}";
 
             self::$connection = new PDO($dsn, $config['username'], $config['password'], [
                 PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
@@ -34,6 +34,8 @@ class DataBaseModule {
 
             // Установка схемы
             self::$connection->exec("SET search_path TO {$config['schema']}");
+
+            echo "✅ PostgreSQL подключен успешно\n";
 
         } catch (\PDOException $e) {
             throw new \RuntimeException('Database connection failed: ' . $e->getMessage());

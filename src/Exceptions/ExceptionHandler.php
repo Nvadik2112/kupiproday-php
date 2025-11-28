@@ -38,12 +38,17 @@ class ExceptionHandler
 
     private function sendResponse(\Throwable $e): void
     {
-        http_response_code($e->getCode() ?: Status::DEFAULT_ERR);
+        $code = $e->getCode();
+
+        if (!is_numeric($code) || $code < 100 || $code >= 600) {
+            $code = Status::DEFAULT_ERR;
+        }
+
+        http_response_code((int)$code);
         header('Content-Type: application/json');
 
         $response = [
             'error' => $e->getMessage(),
-            'code' => $e->getCode()
         ];
 
         echo json_encode($response, JSON_PRETTY_PRINT);
