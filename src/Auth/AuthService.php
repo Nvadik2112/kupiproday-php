@@ -42,29 +42,19 @@ class AuthService {
     /**
      * @throws UnauthorizedException
      */
-    public function validatePassword($username, $password): array
+    public function validatePassword($identifier, $password): array
     {
-        try {
-            $user = $this->usersService->search($username);
-        } catch (BadRequestException | NotFoundException $e) {
-            $user = null;
-        }
+        // Используем новый метод
+        $user = $this->usersService->findByEmailOrUsername($identifier);
 
         if (!$user) {
             throw new UnauthorizedException('Учетная запись не найдена');
         }
 
-        $isPasswordValid = $this->hashService->comparePassword(
-            $password,
-            $user['password']
-        );
-
-        if (!$isPasswordValid) {
+        if (!$user->verifyPassword($password, $this->hashService)) {
             throw new UnauthorizedException('Неверный пароль');
         }
 
-        unset($user['password']);
-
-        return $user;
+        return $user->toArray();
     }
 }

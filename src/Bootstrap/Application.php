@@ -16,14 +16,6 @@ class Application {
     }
 
     private function initialize(): void {
-        // Регистрируем обработчик исключений
-        if ($this->environment === 'production') {
-            set_exception_handler(function () {
-                http_response_code(500);
-                echo json_encode(['error' => 'Internal Server Error']);
-            });
-        }
-
         // Инициализируем модуль приложения
         $this->appModule = new AppModule();
 
@@ -49,7 +41,9 @@ class Application {
             $response = $this->handleRequest($request);
             $response->send();
         } catch (\Throwable $e) {
-            error_log("Application error: " . $e->getMessage());
+            error_log("Application::run() caught: " . get_class($e) . " - " . $e->getMessage());
+            error_log("Trace: " . $e->getTraceAsString());
+            // error_log("Application error: " . $e->getMessage());
             http_response_code(500);
             header('Content-Type: application/json');
             echo json_encode(['error' => 'Internal Server Error']);

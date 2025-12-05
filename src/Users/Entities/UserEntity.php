@@ -2,6 +2,7 @@
 
 namespace App\Users\Entities;
 use App\Constants\Status;
+use App\Hash\HashService;
 
 class UserEntity {
     private ?int $id = null;
@@ -67,7 +68,6 @@ class UserEntity {
     public function getAbout(): string { return $this->about; }
     public function getAvatar(): string { return $this->avatar; }
     public function getEmail(): string { return $this->email; }
-    public function getPassword(): string { return $this->password; }
 
     public function setUsername(string $username): void {
         self::validateUsername($username);
@@ -140,6 +140,11 @@ class UserEntity {
     }
 
     public function clearPassword(): void {
-        unset($this->password);
+        $this->password = '';
+    }
+
+    public function verifyPassword(string $password, HashService $hashService): bool
+    {
+        return $hashService->comparePassword($password, $this->password);
     }
 }

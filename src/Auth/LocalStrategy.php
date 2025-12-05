@@ -22,6 +22,7 @@ class LocalStrategy {
 
     /**
      * @throws ValidationException
+     * @throws UnauthorizedException
      */
     public function validate($username, $password) {
         // Создаем DTO

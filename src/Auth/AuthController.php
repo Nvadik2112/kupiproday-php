@@ -2,6 +2,11 @@
 
 namespace App\Auth;
 
+use App\Auth\Exceptions\ValidationException;
+use App\Exceptions\Domain\BadRequestException;
+use App\Exceptions\Domain\ForbiddenException;
+use App\Exceptions\Domain\NotFoundException;
+use App\Exceptions\Domain\UnauthorizedException;
 use App\Users\UsersService;
 use App\Auth\Guards\LocalGuard;
 use App\Users\Dto\CreateUserDto;
@@ -24,42 +29,29 @@ class AuthController {
         $this->localGuard = $localGuard;
     }
 
+    /**
+     * @throws UnauthorizedException
+     * @throws ValidationException
+     */
     public function signin(Request $request): JsonResponse
     {
-        try {
-            $user = $this->localGuard->validate($request);
-            $tokens = $this->authService->auth($user);
+        $user = $this->localGuard->validate($request);
+        $tokens = $this->authService->auth($user);
 
-            return new JsonResponse($tokens);
-
-        } catch (\Exception $e) {
-            return new JsonResponse([
-                'error' => $e->getMessage()
-            ], $e->getCode() ?: Status::UNAUTHORIZED);
-        }
+        return new JsonResponse($tokens);
     }
 
+    /**
+     * @throws ForbiddenException
+     * @throws NotFoundException
+     * @throws BadRequestException
+     */
     public function signup(Request $request): JsonResponse
     {
-        try {
-            $data = json_decode($request->getContent(), true);
-            $createUserDto = CreateUserDto::fromArray($data);
-            $user = $this->usersService->create($createUserDto->toArray());
-            unset($user['password']);
+        $data = json_decode($request->getContent(), true);
+        $createUserDto = CreateUserDto::fromArray($data);
+        $user = $this->usersService->create($createUserDto->toArray());
 
-            return new JsonResponse($user, Status::CREATED);
-
-        } catch (\Exception $e) {
-            $code = (int)$e->getCode();
-
-            if ($code < 100 || $code >= 600) {
-                $code = Status::BAD_REQUEST;
-            }
-
-
-            return new JsonResponse([
-                'error' => $e->getMessage()
-            ],  $code);
-        }
+        return new JsonResponse($user, Status::CREATED);
     }
 }

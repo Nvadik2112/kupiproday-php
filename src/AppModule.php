@@ -24,10 +24,7 @@ class AppModule
         $path = $request->getPathInfo();
         $method = $request->getMethod();
 
-        $response = $this->route($request, $path, $method);
-        $response->send();
-
-        return $response;
+        return $this->route($request, $path, $method);
     }
 
     private function route(Request $request, string $path, string $method): JsonResponse
