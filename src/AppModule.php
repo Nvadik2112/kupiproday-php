@@ -15,6 +15,11 @@ class AppModule
     public function __construct()
     {
         DataBaseModule::getInstance();
+
+        if (($_ENV['APP_ENV'] ?? 'production') === 'development') {
+            DataBaseModule::runMigrations();
+        }
+
         $this->authModule = AuthModule::getInstance();
     }
 

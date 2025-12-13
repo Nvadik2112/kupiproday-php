@@ -6,12 +6,31 @@ use PDO;
 
 class DataBaseModule {
     private static ?PDO $connection = null;
+    private static ?MigrationManager $migrationManager = null;
 
     public static function getInstance(): PDO {
         if (self::$connection === null) {
             self::initializeConnection();
         }
         return self::$connection;
+    }
+
+    public static function runMigrations(): void {
+        if (self::$migrationManager === null) {
+            $connection = self::getInstance();
+            self::$migrationManager = new MigrationManager($connection);
+        }
+
+        self::$migrationManager->applyMigrations();
+    }
+
+    public static function getMigrationManager(): MigrationManager {
+        if (self::$migrationManager === null) {
+            $connection = self::getInstance();
+            self::$migrationManager = new MigrationManager($connection);
+        }
+
+        return self::$migrationManager;
     }
 
     private static function initializeConnection(): void {
