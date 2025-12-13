@@ -36,18 +36,9 @@ class Application {
     }
 
     public function run(): void {
-        try {
-            $request = Request::createFromGlobals();
-            $response = $this->handleRequest($request);
-            $response->send();
-        } catch (\Throwable $e) {
-            error_log("Application::run() caught: " . get_class($e) . " - " . $e->getMessage());
-            error_log("Trace: " . $e->getTraceAsString());
-            // error_log("Application error: " . $e->getMessage());
-            http_response_code(500);
-            header('Content-Type: application/json');
-            echo json_encode(['error' => 'Internal Server Error']);
-        }
+        $request = Request::createFromGlobals();
+        $response = $this->handleRequest($request);
+        $response->send();
     }
 
     private function handleRequest(Request $request): Response {

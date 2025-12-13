@@ -20,7 +20,7 @@ class DataBaseModule {
             'port' => $_ENV['DB_PORT'] ?? 5432,
             'username' => $_ENV['DB_USER'] ?? 'student',
             'password' => $_ENV['DB_PASSWORD'] ?? 'student',
-            'database' => $_ENV['DB_NAME'] ?? 'nest_project',  // ключ 'database'
+            'database' => $_ENV['DB_NAME'] ?? 'nest_project',
             'schema' => $_ENV['DB_SCHEMA'] ?? 'kupipodariday'
         ];
 
@@ -32,10 +32,7 @@ class DataBaseModule {
                 PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
             ]);
 
-            // Установка схемы
             self::$connection->exec("SET search_path TO {$config['schema']}");
-
-            echo "✅ PostgreSQL подключен успешно\n";
 
         } catch (\PDOException $e) {
             throw new \RuntimeException('Database connection failed: ' . $e->getMessage());

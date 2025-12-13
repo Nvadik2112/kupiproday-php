@@ -4,8 +4,6 @@ namespace App\Auth;
 
 require_once __DIR__ . '/../../vendor/autoload.php';
 
-use App\Exceptions\Domain\BadRequestException;
-use App\Exceptions\Domain\NotFoundException;
 use App\Exceptions\Domain\UnauthorizedException;
 use App\Hash\HashService;
 use App\Users\UsersService;
@@ -44,7 +42,6 @@ class AuthService {
      */
     public function validatePassword($identifier, $password): array
     {
-        // Используем новый метод
         $user = $this->usersService->findByEmailOrUsername($identifier);
 
         if (!$user) {

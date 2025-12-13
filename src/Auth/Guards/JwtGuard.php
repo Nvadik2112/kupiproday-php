@@ -28,7 +28,6 @@ class JwtGuard
     public function validate(Request $request): array
     {
         return $this->jwtStrategy->validate($request);
-
     }
 
     public function handle($request): array

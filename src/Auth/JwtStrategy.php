@@ -32,14 +32,11 @@ class JwtStrategy {
         try {
             $jwtPayload = $this->verifyToken($token);
 
-            // findById либо вернет User, либо выбросит NotFoundException
             $user = $this->usersService->findById($jwtPayload->sub);
 
-            // Конвертируем User в массив
             return $user->toArray();
 
         } catch (NotFoundException $e) {
-            // Пользователь не найден в БД
             throw new Exception('Пользователь не найден', 401);
         } catch (Exception $e) {
             throw new Exception('Ошибка аутентификации: ' . $e->getMessage(), 401);
