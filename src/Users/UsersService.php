@@ -150,16 +150,16 @@ class UsersService
         return $user;
     }
 
-    //public function findWishesByUser(int $userId): array
-    //{
-       // $sql = "SELECT w.* FROM wishes w
-       //         WHERE w.user_id = :userId";
+    /*public function findWishesByUser(int $userId): array
+    {
+        $sql = "SELECT w.* FROM wishes w
+                WHERE w.user_id = :userId";
         
-       //$stmt = $this->connection->prepare($sql);
-       // $stmt->execute(['userId' => $userId]);
+       $stmt = $this->connection->prepare($sql);
+        $stmt->execute(['userId' => $userId]);
         
-     //   return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    //}
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }*/
 
     /**
      * @throws ForbiddenException

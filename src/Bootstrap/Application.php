@@ -3,6 +3,11 @@
 namespace App\Bootstrap;
 
 use App\AppModule;
+use App\Auth\Exceptions\ValidationException;
+use App\Exceptions\Domain\BadRequestException;
+use App\Exceptions\Domain\ForbiddenException;
+use App\Exceptions\Domain\NotFoundException;
+use App\Exceptions\Domain\UnauthorizedException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -35,12 +40,26 @@ class Application {
         }
     }
 
+    /**
+     * @throws UnauthorizedException
+     * @throws NotFoundException
+     * @throws ForbiddenException
+     * @throws BadRequestException
+     * @throws ValidationException
+     */
     public function run(): void {
         $request = Request::createFromGlobals();
         $response = $this->handleRequest($request);
         $response->send();
     }
 
+    /**
+     * @throws UnauthorizedException
+     * @throws NotFoundException
+     * @throws ForbiddenException
+     * @throws BadRequestException
+     * @throws ValidationException
+     */
     private function handleRequest(Request $request): Response {
         return $this->appModule->handle($request);
     }

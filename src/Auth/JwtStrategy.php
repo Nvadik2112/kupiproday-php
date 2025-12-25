@@ -45,12 +45,10 @@ class JwtStrategy {
 
     private function extractJwtFromRequest($request): ?string
     {
-        // Для Symfony Request
-        if (is_object($request) && method_exists($request, 'headers')) {
-            $authHeader = $request->headers->get('Authorization') ?? '';
-        } else {
-            // Для массива
-            $authHeader = $request['headers']['authorization'] ?? $_SERVER['HTTP_AUTHORIZATION'] ?? '';
+        $authHeader = $request->headers->get('Authorization');
+
+        if (!$authHeader) {
+            return null;
         }
 
         if (preg_match('/Bearer\s+(.*)$/i', $authHeader, $matches)) {

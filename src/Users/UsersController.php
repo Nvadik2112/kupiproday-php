@@ -2,7 +2,6 @@
 
 namespace App\Users;
 
-use App\Users\UsersService;
 use App\Auth\Guards\JwtGuard;
 use App\Constants\Status;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -21,12 +20,11 @@ class UsersController
         $this->jwtGuard = $jwtGuard;
     }
 
-    #[Route('/users/me', methods: ['GET'])]
     public function getProfile(Request $request): JsonResponse
     {
         try {
             $user = $this->jwtGuard->validate($request);
-            $userData = $this->usersService->findById($user->getId());
+            $userData = $this->usersService->findById($user['id']);
 
             return new JsonResponse($userData->toArray());
         } catch (\Exception $e) {
@@ -36,22 +34,21 @@ class UsersController
         }
     }
 
-    // #[Route('/users/me/wishes', methods: ['GET'])]
-    // public function getProfileWishes(Request $request): JsonResponse
-    // {
-    //     try {
-    //         $user = $this->jwtGuard->validate($request);
-    //         $wishes = $this->usersService->findWishesByUser($user->getId());
+    /*#[Route('/users/me/wishes', methods: ['GET'])]
+    public function getProfileWishes(Request $request): JsonResponse
+    {
+        try {
+            $user = $this->jwtGuard->validate($request);
+            $wishes = $this->usersService->findWishesByUser($user->getId());
 
-    //         return new JsonResponse($wishes);
-    //    } catch (\Exception $e) {
-    //         return new JsonResponse([
-    //             'error' => $e->getMessage()
-    //         ], $e->getCode() ?: 401);
-    //     }
-    // }
+            return new JsonResponse($wishes);
+       } catch (\Exception $e) {
+            return new JsonResponse([
+                'error' => $e->getMessage()
+            ], $e->getCode() ?: 401);
+        }
+    }*/
 
-    #[Route('/users/{id}', methods: ['GET'])]
     public function getUser(int $id): JsonResponse
     {
         try {
@@ -64,22 +61,20 @@ class UsersController
             ], $e->getCode() ?: Status::NOT_FOUND);
         }
     }
+   /*#[Route('/users/{id}/wishes', methods: ['GET'])]
+     public function getUserWishes(int $id): JsonResponse
+     {
+         try {
+             $wishes = $this->usersService->findWishesByUser($id);
 
-    // #[Route('/users/{id}/wishes', methods: ['GET'])]
-    // public function getUserWishes(int $id): JsonResponse
-    // {
-    //     try {
-    //         $wishes = $this->usersService->findWishesByUser($id);
+             return new JsonResponse($wishes);
+         } catch (\Exception $e) {
+             return new JsonResponse([
+                 'error' => $e->getMessage()
+             ], $e->getCode() ?: Status::NOT_FOUND);
+         }
+     }*/
 
-    //         return new JsonResponse($wishes);
-    //     } catch (\Exception $e) {
-    //         return new JsonResponse([
-    //             'error' => $e->getMessage()
-    //         ], $e->getCode() ?: Status::NOT_FOUND);
-    //     }
-    // }
-
-    #[Route('/users/me', methods: ['PATCH'])]
     public function updateMyProfile(Request $request): JsonResponse
     {
         try {
@@ -87,7 +82,7 @@ class UsersController
             $data = json_decode($request->getContent(), true);
 
             $updatedUser = $this->usersService->update(
-                $user->getId(),
+                $user['id'],
                 $data
             );
 
@@ -99,7 +94,6 @@ class UsersController
         }
     }
 
-    #[Route('/users/find', methods: ['POST'])]
     public function searchUsers(Request $request): JsonResponse
     {
         try {

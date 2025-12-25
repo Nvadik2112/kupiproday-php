@@ -4,6 +4,7 @@ namespace App\Auth;
 
 require_once __DIR__ . '/../../vendor/autoload.php';
 
+use App\Config\ConfigService;
 use App\Exceptions\Domain\UnauthorizedException;
 use App\Hash\HashService;
 use App\Users\UsersService;
@@ -18,7 +19,8 @@ class AuthService {
     public function __construct(HashService $hashService, UsersService $usersService) {
         $this->hashService = $hashService;
         $this->usersService = $usersService;
-        $this->secretKey = getenv('JWT_SECRET') ?: 'your-fallback-secret-key';
+        $configService = new ConfigService();
+        $this->secretKey = $configService->get('JWT_KEY') ?? 'default_secret_key';
     }
 
     public function auth($user): array
